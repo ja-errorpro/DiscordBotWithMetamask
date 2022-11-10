@@ -1,0 +1,10 @@
+{
+	"token":"<discord-bot-token-here>",
+	
+	"prefix":"d!",
+	"Admin":"<the-owner's-discord-id>",
+	"host":"<your-hostname-or-ip-address>",
+	"port":"<port>"
+
+
+}

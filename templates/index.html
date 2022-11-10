@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>MetaMask 連接 Discord 帳號</title>
+    </head>
+    <body>
+        <center>
+            <h1>MetaMask 連接 Discord 帳號</h1>
+            <button id="connectWallet" onclick="">連接錢包</button>
+            <button id="syncDiscord" onclick="">同步 Discord 帳號</button>
+            <p id="walletAddress"></p>
+            <script type="text/javascript">
+                var discord_id = "{{ discord_id }}";
+                window.walletAddress = null;
+                const syncDiscord = document.getElementById('syncDiscord');
+                const connectWallet = document.getElementById('connectWallet');
+                const walletAddress = document.getElementById('walletAddress');
+                function checkInstalled(){
+                    if (typeof window.ethereum == 'undefined') {
+                        walletAddress.innerText('請先安裝Metamask到您的瀏覽器');
+                        return false;
+                    } 
+                    connectWallet.addEventListener('click', connectWalletwithMetamask);
+                }
+                async function connectWalletwithMetamask(){
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' })
+                    .catch((e)=>{
+                        console.error(e.message)
+                        return
+                    })
+                    if(!accounts){return}
+                    window.walletAddress = accounts[0];
+                    walletAddress.innerText = window.walletAddress;
+                    connectWallet.innerText = '登出'
+                    connectWallet.removeEventListener('click', connectWalletwithMetamask)
+                    setTimeout(()=>{
+                        connectWallet.addEventListener('click', signoutOfMetamask)
+                        syncDiscord.addEventListener('click', syncDiscordWithWallet)
+                    }, 200)
+                }
+                function signoutOfMetamask(){
+                    window.walletAddress = null;
+                    walletAddress.innerText = '';
+                    connectWallet.innerText = '連接錢包'
+                    connectWallet.removeEventListener('click', signoutOfMetamask)
+                    syncDiscord.removeEventListener('click', syncDiscordWithWallet)
+                    setTimeout(()=>{
+                        connectWallet.addEventListener('click', connectWalletwithMetamask)
+                    }, 200)
+                }
+                window.addEventListener('DOMContentLoaded',()=>{
+                    checkInstalled()
+                })
+                async function syncDiscordWithWallet(){
+                    alert('如果已經連接過錢包，就不會發生任何事情，否則將會把錢包地址與Discord ID綁定')
+                    const response = await fetch('/sync',{
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            discord_id: discord_id,
+                            wallet_address: window.walletAddress
+                        })
+                    })
+                }
+            </script>
+
+        </center>
+    </body>
